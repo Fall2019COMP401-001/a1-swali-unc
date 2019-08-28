@@ -21,8 +21,57 @@ public class A1Novice {
 		// Will control how many times we ask for customer data
 		numCustomers = scan.nextInt();
 		
+		// Create our array of customers
+		CustomerData customers[] = new CustomerData[numCustomers];
+		
+		// Go through every customer and take their input
 		for( int i = 0; i < numCustomers; ++i ) {
+			String firstName, lastName;
+			int numItems;
 			
+			// The first step is getting the customer's name and
+			// the number of items
+			// Ex: Carrie Brownstein 3
+			firstName = scan.next();
+			lastName = scan.next();
+			numItems = scan.nextInt();
+			
+			// TODO:
+			// It would be ideal to check numItems <= 0 here
+			
+			// Instantiate the object
+			customers[i] = new CustomerData( numItems, firstName, lastName );
+			
+			// For each item they have, 
+			for( int itemIndex = 0; itemIndex < numItems; ++itemIndex ) {
+				int quantity;
+				String itemName;
+				double itemCost;
+
+				// This input looks like this:
+				//	2 Banana 0.75
+				quantity = scan.nextInt();
+				itemName = scan.next();
+				itemCost = scan.nextDouble();
+				
+				// TODO:
+				// It would be ideal to check if
+				// quantity <= 0 here. Cost might be negative
+				// if this is a refund.
+				
+				// And set the item
+				customers[i].SetItem( itemIndex, itemName, quantity, itemCost);
+			}
+		}
+		
+		// Now we can output everything
+		for( CustomerData customer : customers ) {
+			// The accepted form of output looks as follows:
+			// C. Brownstein: 0.95
+			// C. Tucker: 4.55
+			System.out.printf( "%s: %.2f\n",
+					customer.GetFormattedCustomerName(),
+					customer.GetTotalOfItems() );
 		}
 	}
 	
@@ -33,7 +82,7 @@ public class A1Novice {
 	 * @author swali
 	 *
 	 */
-	private class CustomerData {
+	private static class CustomerData {
 		private String firstName;
 		private String lastName;
 		private int itemCount;
@@ -65,10 +114,10 @@ public class A1Novice {
 		 * @param itemCost What is the cost of ONE item
 		 */
 		public void SetItem( int itemIndex, String itemName, int itemQuantity, double itemCost ) {
-			if( itemIndex > this.itemCount || itemIndex <= 0 ) // Invalid index
+			if( itemIndex > this.itemCount || itemIndex < 0 ) // Invalid index
 				throw new IllegalArgumentException( "Invalid item index" );
 			
-			this.items[itemIndex].SetItem( itemName, itemQuantity, itemCost);
+			this.items[itemIndex] = new Item( itemName, itemQuantity, itemCost);
 		}
 
 		/** The customer's name must be formatted as follows:
@@ -116,7 +165,7 @@ public class A1Novice {
 			 * @param quantity How many do we have?
 			 * @param cost What is the INDIVIDUAL cost of this item.
 			 */
-			public void SetItem( String name, int quantity, double cost ) {
+			public Item( String name, int quantity, double cost ) {
 				this.itemName = name;
 				this.itemQuantity = quantity;
 				this.itemCost = cost;
