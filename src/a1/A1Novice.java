@@ -6,7 +6,10 @@ public class A1Novice {
 
 	/** Main entrypoint. We need to take input of customer names
 	 * and their bought items. We need to output their names
-	 * (in a specific format) and their totals
+	 * (in a specific format) and their totals.
+	 * 
+	 * I honestly don't know if gradescope will look at multiple files
+	 * so instead I made static subclasses.
 	 * 
 	 * @param args Unused
 	 */
@@ -20,6 +23,9 @@ public class A1Novice {
 		// How many customers do we have?
 		// Will control how many times we ask for customer data
 		numCustomers = scan.nextInt();
+		
+		// TODO:
+		// Handle invalid input of <= 0 customers
 		
 		// Create our array of customers
 		CustomerData customers[] = new CustomerData[numCustomers];
@@ -37,7 +43,8 @@ public class A1Novice {
 			numItems = scan.nextInt();
 			
 			// TODO:
-			// It would be ideal to check numItems <= 0 here
+			// It would be ideal to check numItems <= 0 here and output
+			// an elegant error message instead of a thrown exception.
 			
 			// Instantiate the object
 			customers[i] = new CustomerData( numItems, firstName, lastName );
@@ -57,7 +64,7 @@ public class A1Novice {
 				// TODO:
 				// It would be ideal to check if
 				// quantity <= 0 here. Cost might be negative
-				// if this is a refund.
+				// if this is a refund, so no need to check that.
 				
 				// And set the item
 				customers[i].SetItem( itemIndex, itemName, quantity, itemCost);
@@ -66,13 +73,11 @@ public class A1Novice {
 		
 		// Now we can output everything
 		for( CustomerData customer : customers ) {
-			// The accepted form of output looks as follows:
-			// C. Brownstein: 0.95
-			// C. Tucker: 4.55
-			System.out.printf( "%s: %.2f\n",
-					customer.GetFormattedCustomerName(),
-					customer.GetTotalOfItems() );
+			// The proper formatting is taken care of by the object
+			System.out.println( customer );
 		}
+		
+		scan.close();
 	}
 	
 	/** A customer can be kept up in this object.
@@ -119,6 +124,14 @@ public class A1Novice {
 			
 			this.items[itemIndex] = new Item( itemName, itemQuantity, itemCost);
 		}
+		
+		/** The format for how to output a customer is as follows:
+		 * The accepted form of output looks as follows:
+		 * C. Brownstein: 0.95
+		 */
+		public String toString() {
+			return String.format( "%s: %.2f", this.GetFormattedCustomerName(), this.GetTotalOfItems() );
+		}
 
 		/** The customer's name must be formatted as follows:
 		 * F. Lastname
@@ -154,7 +167,7 @@ public class A1Novice {
 		 * @author swali
 		 *
 		 */
-		private class Item {
+		private static class Item {
 			private String itemName;
 			private int itemQuantity;
 			private double itemCost;
