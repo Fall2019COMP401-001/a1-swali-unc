@@ -283,7 +283,7 @@ public class A1Adept {
 		 *
 		 */
 		private class Item {
-			private String itemName; // We might need this for the future.
+			//private String itemName; // We might need this for the future.
 			private double itemCost;
 			private int itemQuantity;
 			
@@ -294,7 +294,7 @@ public class A1Adept {
 			 * @param quantity How many do we have?
 			 */
 			public Item( String name, int quantity ) {
-				this.itemName = name;
+				//this.itemName = name;
 				this.itemQuantity = quantity;
 				this.itemCost = ItemInventory.Instance().GetItemCost( name );
 			}

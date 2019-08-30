@@ -168,7 +168,7 @@ public class A1Novice {
 		 *
 		 */
 		private static class Item {
-			private String itemName;
+			//private String itemName;
 			private int itemQuantity;
 			private double itemCost;
 			
@@ -179,7 +179,7 @@ public class A1Novice {
 			 * @param cost What is the INDIVIDUAL cost of this item.
 			 */
 			public Item( String name, int quantity, double cost ) {
-				this.itemName = name;
+				//this.itemName = name;
 				this.itemQuantity = quantity;
 				this.itemCost = cost;
 			}
