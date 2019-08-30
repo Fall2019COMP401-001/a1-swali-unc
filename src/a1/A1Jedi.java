@@ -55,6 +55,46 @@ public class A1Jedi {
 		 * there will be calculations and an output block.
 		 */
 		
+		// Number of items
+		int numberOfItemsInInventory = scan.nextInt();
+		
+		// Our inventory system is just a list of items
+		Item itemList[] = new Item[numberOfItemsInInventory];
+		
+		for( int i = 0; i < numberOfItemsInInventory; ++i ) {
+			// For each item, take note of costs
+			String itemName = scan.next();
+			scan.nextDouble(); // Discarded item cost
+			
+			itemList[i] = new Item( itemName );
+		}
+		
+		// Number of customers
+		int numberOfCustomers = scan.nextInt();
+		
+		// TODO:
+		// Handle invalid input of <= 0
+		
+		for( int i = 0; i < numberOfCustomers; ++i ) {
+			// For each customer, take their name then items
+			scan.next(); // Discarded first name
+			scan.next(); // Discarded last name
+			int numberOfItems = scan.nextInt();
+			
+			// Now we need their items
+			for( int itemIndex = 0; itemIndex < numberOfItems; ++itemIndex ) {
+				int itemQuantity = scan.nextInt();
+				String itemName = scan.next();
+				
+				int itemFoundIndex = FindItemIndex( itemList, itemName );
+				if( itemFoundIndex == -1 ) {
+					scan.close();
+					throw new IllegalArgumentException( "Invalid item name specified (not found)");
+				}
+				itemList[itemFoundIndex].NotifyItemSold( itemQuantity );
+			}
+		}
+		
 		scan.close();
 		
 		/* The next few blocks of code will be working on output
@@ -69,6 +109,18 @@ public class A1Jedi {
 		 * 1 customers bought 2 Milk             : Customers can remain plural
 		 * 
 		 */
+		for( Item item : itemList ) {
+			System.out.println( item );
+		}
+	}
+	
+	private static int FindItemIndex( Item itemlist[], String itemName ) {
+		for( int i = 0; i < itemlist.length; ++i ) {
+			if( itemlist[i].GetItemName().equals( itemName ) )
+				return i;
+		}
+		
+		return -1;
 	}
 	
 	/** This object will keep up with an item. More importantly, it will
