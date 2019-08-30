@@ -1,19 +1,19 @@
 package a1;
 
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class A1Adept {
 
-	/** Main entrypoint. We need to take input of customer names
-	 * and their bought items. We need to output their names
-	 * (in a specific format) and their totals.
+	/** Main entrypoint.
 	 * 
-	 * I honestly don't know if gradescope will look at multiple files
-	 * so instead I made static subclasses.
+	 * We need to take user input to create an inventory of items
+	 * and their prices. Then we take in customer data including
+	 * what item they bought and how many.
 	 * 
-	 * Furthermore rather than update A1Novice and import those classes,
-	 * I'd rather show my work that shows how the classes were changed
-	 * throughout different parts of this assignment.
+	 * Finally, we will output our biggest spender, the smallest
+	 * spender, and the average spent.
 	 * 
 	 * @param args Unused
 	 */
@@ -22,66 +22,58 @@ public class A1Adept {
 		Scanner scan = new Scanner(System.in);
 
 		// Your code follows here.
-		int numCustomers;
-		
-		// How many customers do we have?
-		// Will control how many times we ask for customer data
-		numCustomers = scan.nextInt();
-		
-		// TODO:
-		// Handle invalid input of <= 0 customers
-		
-		// Create our array of customers
-		CustomerData customers[] = new CustomerData[numCustomers];
-		
-		// Go through every customer and take their input
-		for( int i = 0; i < numCustomers; ++i ) {
-			String firstName, lastName;
-			int numItems;
-			
-			// The first step is getting the customer's name and
-			// the number of items
-			// Ex: Carrie Brownstein 3
-			firstName = scan.next();
-			lastName = scan.next();
-			numItems = scan.nextInt();
-			
-			// TODO:
-			// It would be ideal to check numItems <= 0 here and output
-			// an elegant error message instead of a thrown exception.
-			
-			// Instantiate the object
-			customers[i] = new CustomerData( numItems, firstName, lastName );
-			
-			// For each item they have, 
-			for( int itemIndex = 0; itemIndex < numItems; ++itemIndex ) {
-				int quantity;
-				String itemName;
-				double itemCost;
-
-				// This input looks like this:
-				//	2 Banana 0.75
-				quantity = scan.nextInt();
-				itemName = scan.next();
-				itemCost = scan.nextDouble();
-				
-				// TODO:
-				// It would be ideal to check if
-				// quantity <= 0 here. Cost might be negative
-				// if this is a refund, so no need to check that.
-				
-				// And set the item
-				customers[i].SetItem( itemIndex, itemName, quantity, itemCost);
-			}
-		}
-		
-		// Now we can output everything
-		for( CustomerData customer : customers ) {
-			// The proper formatting is taken care of by the object
-			System.out.println( customer );
-		}
 		
 		scan.close();
+	}
+	
+	/** A singleton object that stores information about items
+	 * and their prices. We can look up the price of an item
+	 * by the name, and we can also add items to our inventory.
+	 * This is a singleton because of implementation specific
+	 * reasons.
+	 * 
+	 * @author swali
+	 *
+	 */
+	private static class ItemInventory {
+		static ItemInventory _instance = null;
+		Map<String, Double> itemCostTable;
+		
+		/** Constructor.
+		 * 
+		 * We're using ConcurrentHashMap to store item names
+		 * and their associated cost.
+		 */
+		public ItemInventory() {
+			itemCostTable = new ConcurrentHashMap<String, Double>();
+		}
+		
+		/** Here we need to find the itemname given in the parameter
+		 * and return the associated cost. Will throw an exception
+		 * if we cannot find the item.
+		 * 
+		 * @param itemName Name of the item we want to look up
+		 * @return double The cost of the item
+		 */
+		public double GetItemCost( String itemName ) {
+			
+		}
+		
+		/** This will store an item in our internal map. This item
+		 * will then be lookup-able through the GetItemCost method.
+		 * 
+		 * @param itemName The name of the item
+		 * @param itemCost The cost of the item
+		 */
+		public void StoreItemAndCost( String itemName, double itemCost ) {
+			
+		}
+		
+		public static ItemInventory Instance() {
+			if( _instance == null )
+				_instance = new ItemInventory();
+			return _instance;
+		}
 	}
 	
 	/** A customer can be kept up in this object.
@@ -91,7 +83,7 @@ public class A1Adept {
 	 * @author swali
 	 *
 	 */
-	private static class CustomerData {
+	private class CustomerData {
 		private String firstName;
 		private String lastName;
 		private int itemCount;
@@ -120,13 +112,12 @@ public class A1Adept {
 		 * @param itemIndex This is the index in the array for the item
 		 * @param itemName Name of the item
 		 * @param itemQuantity How many of said item do we have?
-		 * @param itemCost What is the cost of ONE item
 		 */
-		public void SetItem( int itemIndex, String itemName, int itemQuantity, double itemCost ) {
+		public void SetItem( int itemIndex, String itemName, int itemQuantity ) {
 			if( itemIndex > this.itemCount || itemIndex < 0 ) // Invalid index
 				throw new IllegalArgumentException( "Invalid item index" );
 			
-			this.items[itemIndex] = new Item( itemName, itemQuantity, itemCost);
+			this.items[itemIndex] = new Item( itemName, itemQuantity );
 		}
 		
 		/** The format for how to output a customer is as follows:
@@ -154,29 +145,34 @@ public class A1Adept {
 		
 		/** An item is simply a name, quantity, and the cost. nothing more.
 		 * Since there is a quantity field, a single Item object can technically
-		 * reference multiple items.
+		 * reference multiple items. The cost is looked up in the ItemInventory
+		 * instanced object.
 		 * 
 		 * @author swali
 		 *
 		 */
-		private static class Item {
+		private class Item {
 			private String itemName;
-			private int itemQuantity;
 			private double itemCost;
+			private int itemQuantity;
 			
 			/** This will allow us to set the properties of the item.
+			 * The cost is looked up in the ItemInventory instanced object.
 			 * 
 			 * @param name The name of the item
 			 * @param quantity How many do we have?
-			 * @param cost What is the INDIVIDUAL cost of this item.
 			 */
-			public Item( String name, int quantity, double cost ) {
+			public Item( String name, int quantity ) {
 				this.itemName = name;
 				this.itemQuantity = quantity;
-				this.itemCost = cost;
+				this.itemCost = ItemInventory.Instance().GetItemCost( name );
 			}
 			
-			/** 
+			/** This function will return the cost of the item. NOTE, if the item
+			 * cost has been modified, it will NOT be re-looked up. This object
+			 * will maintain the original cost of the item, which would be ideal
+			 * for refunds anyway (can't refund a sale item at full price later
+			 * unless you wanna go bankrupt).
 			 * 
 			 * @return double The total cost of this item (incorporating quantity)
 			 */
