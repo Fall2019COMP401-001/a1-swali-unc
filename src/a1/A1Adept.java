@@ -1,5 +1,7 @@
 package a1;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,9 +23,136 @@ public class A1Adept {
 		
 		Scanner scan = new Scanner(System.in);
 
-		// Your code follows here.
+		/* This is what our expected input will look like
+		 * and this comment block will describe most of the
+		 * next few blocks of code taking input.
+		 * 
+		 * First we need to take in an inventory, starting
+		 * with the number of items. Then we take in each
+		 * item name, and the associated cost.
+		 * 
+		 * 2                  : Number of items
+		 * Apple 0.25         : The item name and cost
+		 * Jackfruit 0.75     : The item name and cost
+		 * 
+		 * Then we need to take in customer counts, and their
+		 * names and how which items (and how many) they bought.
+		 * 
+		 * 2                  : Number of customers
+		 * Mike Watt          : Name of customer
+		 * 2                  : Number of items bought
+		 * 2 KMPTicket        : He bought 2 tickets to see KMP
+		 * 4 Apple            : And bought four apples
+		 * Ketan Meyer-Patel  : Name of customer
+		 * 1                  : Number of items bought
+		 * 100 MikeWattTicket : He bought 100 tickets to see Mike Watt
+		 * 
+		 * Although it must be noted in the above example that
+		 * the items bought are not listed in the inventory
+		 * and therefore will throw an exception.
+		 * 
+		 * This ends the input block. After the input block,
+		 * there will be calculations and an output block.
+		 */
 		
+		// Instantiate our singleton inventory system which tracks prices
+		ItemInventory itemCosts = ItemInventory.Instance();
+		
+		// Number of items
+		int numberOfItemsInInventory = scan.nextInt();
+		for( int i = 0; i < numberOfItemsInInventory; ++i ) {
+			// For each item, take note of costs
+			String itemName = scan.next();
+			double itemCost = scan.nextDouble();
+			
+			itemCosts.StoreItemAndCost(itemName, itemCost);
+		}
+		
+		// Number of customers
+		int numberOfCustomers = scan.nextInt();
+		
+		// TODO:
+		// Handle invalid input of <= 0
+		
+		// Create our customers shopping carts
+		CustomerData customers[] = new CustomerData[numberOfCustomers];
+		
+		for( int i = 0; i < numberOfCustomers; ++i ) {
+			// For each customer, take their name then items
+			String firstName = scan.next();
+			String lastName = scan.next();
+			int numberOfItems = scan.nextInt();
+			
+			customers[i] = new CustomerData( numberOfItems, firstName, lastName );
+			
+			// Now we need their items
+			for( int itemIndex = 0; itemIndex < numberOfItems; ++itemIndex ) {
+				int itemQuantity = scan.nextInt();
+				String itemName = scan.next();
+				
+				customers[i].SetItem( itemIndex, itemName, itemQuantity);
+			}
+		}
+		
+		// We're done with input
 		scan.close();
+		
+		/* The next few blocks of code will be working on output
+		 * 
+		 * The output for this program is actually fairly simple.
+		 * As described in the javadoc comment, we need to output
+		 * who spent the most, the last, and the average of all
+		 * customers.
+		 * 
+		 * Biggest: Ketan Meyer-Patel (1000.00)
+		 * Smallest: Joe Bob (0.02)
+		 * Average: 500.01
+		 */
+		List<Object> calculationResults = CalculateSpenders( customers );
+		int indexLargestSpender = (int)calculationResults.get(0);
+		int indexSmallestSpender = (int)calculationResults.get(1);
+		double averageSpent = (double)calculationResults.get(2);
+		
+		System.out.printf( "Biggest: %s\n", customers[indexLargestSpender] );
+		System.out.printf( "Smallest: %s\n", customers[indexSmallestSpender] );
+		System.out.printf( "Average: %.2f\n", averageSpent );
+	}
+	
+	/** This function will iterate through the passed customer list.
+	 * The return value is a list of objects, but more specifically:
+	 * 
+	 * [0] is the index of the largest spender.
+	 * [1] is the index of the smallest spender.
+	 * [2] is a Double average spent from all customers.
+	 * 
+	 * @param customers Our array of customers
+	 * @return List<Object> of a Integer indexLargestCust, Integer indexSmallestCust, Double average
+	 */
+	private static List<Object> CalculateSpenders( CustomerData customers[] ) {
+		int indexLargestSpender = 0;
+		int indexSmallestSpender = 0;
+		double totalSpent = customers[0].GetTotalOfItems();
+		
+		// For every customer..
+		for( int i = 1; i < customers.length; ++i ) {
+			double customerTotal = customers[i].GetTotalOfItems();
+			
+			// Instead of falling GetTotalOfItems so many times, this could
+			// likely be optimized by caching the largest total and smallest total.
+			// But this file is large enough, and I don't know if autograder would
+			// let me split this into multiple files.
+			if( customerTotal > customers[indexLargestSpender].GetTotalOfItems() )
+				indexLargestSpender = i;
+			if( customerTotal < customers[indexSmallestSpender].GetTotalOfItems() )
+				indexSmallestSpender = i;
+			totalSpent += customerTotal;
+		}
+		
+		return Arrays.asList(
+				(Integer)indexLargestSpender,
+				(Integer)indexSmallestSpender,
+				(Double)(totalSpent/customers.length)
+				);
 	}
 	
 	/** A singleton object that stores information about items
@@ -56,7 +185,9 @@ public class A1Adept {
 		 * @return double The cost of the item
 		 */
 		public double GetItemCost( String itemName ) {
-			
+			if( !itemCostTable.containsKey( itemName ) )
+				throw new IllegalArgumentException(String.format("Specified item (%s) is not in the inventory", itemName));
+			return itemCostTable.get( itemName );
 		}
 		
 		/** This will store an item in our internal map. This item
@@ -66,7 +197,7 @@ public class A1Adept {
 		 * @param itemCost The cost of the item
 		 */
 		public void StoreItemAndCost( String itemName, double itemCost ) {
-			
+			itemCostTable.put( itemName, itemCost );
 		}
 		
 		public static ItemInventory Instance() {
@@ -83,7 +214,7 @@ public class A1Adept {
 	 * @author swali
 	 *
 	 */
-	private class CustomerData {
+	private static class CustomerData {
 		private String firstName;
 		private String lastName;
 		private int itemCount;
@@ -152,7 +283,7 @@ public class A1Adept {
 		 *
 		 */
 		private class Item {
-			private String itemName;
+			private String itemName; // We might need this for the future.
 			private double itemCost;
 			private int itemQuantity;
 			

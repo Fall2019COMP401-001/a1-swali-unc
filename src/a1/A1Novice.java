@@ -71,13 +71,13 @@ public class A1Novice {
 			}
 		}
 		
+		scan.close();
+		
 		// Now we can output everything
 		for( CustomerData customer : customers ) {
 			// The proper formatting is taken care of by the object
 			System.out.println( customer );
 		}
-		
-		scan.close();
 	}
 	
 	/** A customer can be kept up in this object.
