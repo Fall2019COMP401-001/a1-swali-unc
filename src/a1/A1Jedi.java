@@ -2,6 +2,11 @@ package a1;
 
 import java.util.Scanner;
 
+/**
+ * 
+ * @author swali
+ *
+ */
 public class A1Jedi {
 
 	public static void main(String[] args) {
