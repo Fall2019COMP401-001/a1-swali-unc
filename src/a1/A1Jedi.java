@@ -1,5 +1,7 @@
 package a1;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -77,8 +79,8 @@ public class A1Jedi {
 		
 		for( int i = 0; i < numberOfCustomers; ++i ) {
 			// For each customer, take their name then items
-			scan.next(); // Discarded first name
-			scan.next(); // Discarded last name
+			String firstName = scan.next();
+			String lastName = scan.next();
 			int numberOfItems = scan.nextInt();
 			
 			// Now we need their items
@@ -91,7 +93,7 @@ public class A1Jedi {
 					scan.close();
 					throw new IllegalArgumentException( "Invalid item name specified (not found)");
 				}
-				itemList[itemFoundIndex].NotifyItemSold( itemQuantity );
+				itemList[itemFoundIndex].NotifyItemSold( firstName + lastName, itemQuantity );
 			}
 		}
 		
@@ -133,13 +135,13 @@ public class A1Jedi {
 	 */
 	private static class Item {
 		private String itemName;
-		private int customerCount;
 		private int itemSoldCount;
+		private List<String> customerNames;
 		
 		public Item( String name ) {
 			itemName = name;
-			customerCount = 0;
 			itemSoldCount = 0;
+			customerNames = new ArrayList<String>();
 		}
 		
 		/** This function does TWO THINGS:
@@ -148,9 +150,9 @@ public class A1Jedi {
 		 * 
 		 * @param quantitySold how many did we still to this customer?
 		 */
-		public void NotifyItemSold( int quantitySold ) {
-			++customerCount;
+		public void NotifyItemSold( String customerName, int quantitySold ) {
 			itemSoldCount += quantitySold;
+			InsertIntoCustomerList( customerName );
 		}
 		
 		/** We're gonna need this in order to identify items in an array.
@@ -170,9 +172,18 @@ public class A1Jedi {
 		 */
 		public String toString() {
 			return String.format("%s customers bought %s",
-					customerCount != 0 ? Integer.toString(customerCount) : "No",
+					customerNames.size() != 0 ? Integer.toString(customerNames.size()) : "No",
 					itemSoldCount != 0 ? String.format("%d %s", itemSoldCount, itemName) : itemName
 					);
+		}
+		
+		private void InsertIntoCustomerList( String customerName ) {
+			for( String name : customerNames ) {
+				if( name.contentEquals( customerName ) )
+					return;
+			}
+			
+			customerNames.add( customerName );
 		}
 	}
 }
